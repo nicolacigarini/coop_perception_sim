@@ -15,9 +15,9 @@ MultiLidarSlam::MultiLidarSlam() : Node("multi_lidar_slam",
 }
 
 void MultiLidarSlam::setupParams() {
-    _gridParams.width = 200;
-    _gridParams.height = 200;
-    _gridParams.resolution = 0.05;
+    _gridParams.width = 500;
+    _gridParams.height = 500;
+    _gridParams.resolution = 0.02;
     _gridParams.origin_x = -(_gridParams.width*_gridParams.resolution)/2.0;
     _gridParams.origin_y = -(_gridParams.height*_gridParams.resolution)/2.0;
     occupancy_grid.header.frame_id = "map";
@@ -30,16 +30,36 @@ void MultiLidarSlam::setupParams() {
 }
 
 void MultiLidarSlam::initConnections() {    
-    _lidarSub_Robot01 = this->create_subscription<sensor_msgs::msg::LaserScan>("/robot1/lidar/scan", 10, std::bind(&MultiLidarSlam::lidarCallback, this, std::placeholders::_1));
-    _odomSub_robot01 = this->create_subscription<nav_msgs::msg::Odometry>("/robot1/sim_ground_truth_pose", 10, std::bind(&MultiLidarSlam::odomCallback, this, std::placeholders::_1));
     _mapPublisher = this->create_publisher<nav_msgs::msg::OccupancyGrid>("/map",10);
+    addNewRobot("robot1");
+    addNewRobot("robot2");
 }
 
-void MultiLidarSlam::lidarCallback(const sensor_msgs::msg::LaserScan &msg){
-    if(!hasPose) {
-        RCLCPP_WARN_THROTTLE(get_logger(),*get_clock(),2000, "No pose received, skipping scan");
-        return;
-    }
+void MultiLidarSlam::addNewRobot(const std::string &robotName) {
+    auto pose_sub = this->create_subscription<nav_msgs::msg::Odometry>(
+        "/" + robotName + "/sim_ground_truth_pose", 10,
+        [this, robotName](nav_msgs::msg::Odometry::SharedPtr msg) {
+            _robots[robotName].latest_pose.pose = msg->pose.pose;
+            _robots[robotName].hasPose = true;
+        }
+    );
+
+    auto scan_sub = this->create_subscription<sensor_msgs::msg::LaserScan>(
+        "/" + robotName + "/lidar/scan", 10,
+        [this, robotName](sensor_msgs::msg::LaserScan::SharedPtr msg) {
+            if(!_robots[robotName].hasPose)
+                return;
+            elaborateScan(*msg, _robots[robotName].latest_pose);
+
+        }
+    );
+    _scan_subs.push_back(scan_sub);
+    _odom_subs.push_back(pose_sub);
+    _robots[robotName] = RobotState();
+
+}
+
+void MultiLidarSlam::elaborateScan(const sensor_msgs::msg::LaserScan &msg, const geometry_msgs::msg::PoseStamped &poseMsg){
 
     const double px = latest_pose.pose.position.x;
     const double py = latest_pose.pose.position.y;
@@ -76,11 +96,6 @@ bool MultiLidarSlam::worldToMap(double wx, double wy, int &mx, int &my) {
     mx = static_cast<int>((wx-_gridParams.origin_x)/_gridParams.resolution);
     my = static_cast<int>((wy-_gridParams.origin_y)/_gridParams.resolution);
     return (mx>=0 && mx<_gridParams.width && my>=0 && my<_gridParams.height);
-}
-
-void MultiLidarSlam::odomCallback(const nav_msgs::msg::Odometry &msg) {
-    latest_pose.pose = msg.pose.pose;
-    hasPose = true;
 }
 
 int main(int argc, char **argv){
