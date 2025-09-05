@@ -9,7 +9,7 @@ from launch_ros.actions import Node
 ARGUMENTS = [
     DeclareLaunchArgument("namespace_robot_1", default_value='robot1', description="Robot #1 namespace"),
     DeclareLaunchArgument("namespace_robot_2", default_value='robot2', description="Robot #2 namespace"),
-    DeclareLaunchArgument("world", default_value="empty", description="Simulation world")
+    DeclareLaunchArgument("world", default_value="napcylinders", description="Simulation world")
 ]
 
 
@@ -42,6 +42,9 @@ def launch_setup(context:LaunchContext, *args, **kwargs):
         launch_arguments=[
             ('namespace', robot1_namespace),
             ('UGV_model', 'turtlebot'),
+            ('x', '-1.5'),
+            ('y', '-1.5'),
+            ('Y','0.0')
         ],
     )
 
@@ -56,8 +59,8 @@ def launch_setup(context:LaunchContext, *args, **kwargs):
         launch_arguments=[
             ('namespace', robot2_namespace),
             ('UGV_model', 'turtlebot'),
-            ('x', '15'),
-            ('y', '15'),
+            ('x', '1.5'),
+            ('y', '0.5'),
             ('Y','3.14')
         ],
     )

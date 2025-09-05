@@ -41,7 +41,6 @@ class MultiLidarSlam : public rclcpp::Node {
         std::vector<rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr> _scan_subs;
         std::vector<rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr> _odom_subs;
         GridParams _gridParams;
-        geometry_msgs::msg::PoseStamped latest_pose;
         nav_msgs::msg::OccupancyGrid occupancy_grid;
         std::unordered_map<std::string, RobotState> _robots;
 };

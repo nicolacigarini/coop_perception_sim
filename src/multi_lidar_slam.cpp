@@ -47,6 +47,7 @@ void MultiLidarSlam::addNewRobot(const std::string &robotName) {
     auto scan_sub = this->create_subscription<sensor_msgs::msg::LaserScan>(
         "/" + robotName + "/lidar/scan", 10,
         [this, robotName](sensor_msgs::msg::LaserScan::SharedPtr msg) {
+            //RCLCPP_INFO(get_logger(), "Before IF");
             if(!_robots[robotName].hasPose)
                 return;
             elaborateScan(*msg, _robots[robotName].latest_pose);
@@ -61,13 +62,13 @@ void MultiLidarSlam::addNewRobot(const std::string &robotName) {
 
 void MultiLidarSlam::elaborateScan(const sensor_msgs::msg::LaserScan &msg, const geometry_msgs::msg::PoseStamped &poseMsg){
 
-    const double px = latest_pose.pose.position.x;
-    const double py = latest_pose.pose.position.y;
+    const double px = poseMsg.pose.position.x;
+    const double py = poseMsg.pose.position.y;
     tf2::Quaternion q(
-        latest_pose.pose.orientation.x,
-        latest_pose.pose.orientation.y,
-        latest_pose.pose.orientation.z,
-        latest_pose.pose.orientation.w);
+        poseMsg.pose.orientation.x,
+        poseMsg.pose.orientation.y,
+        poseMsg.pose.orientation.z,
+        poseMsg.pose.orientation.w);
     tf2::Matrix3x3 R(q);
 
     double angle = msg.angle_min + M_PI_2;
