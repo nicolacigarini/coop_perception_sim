@@ -27,6 +27,8 @@ install(TARGETS
 install(DIRECTORY
 launch
 config
+rviz
+maps
 DESTINATION share/${PROJECT_NAME})
 
 ament_package()

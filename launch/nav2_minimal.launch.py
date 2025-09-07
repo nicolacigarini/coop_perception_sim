@@ -1,9 +1,9 @@
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, GroupAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
-
+from launch_ros.actions import SetRemap
 
 def generate_launch_description():
     coop_perception_pkg = FindPackageShare('coop_perception_sim')
@@ -32,7 +32,7 @@ def generate_launch_description():
     )
 
     declare_use_sim_time_cmd = DeclareLaunchArgument(
-        'use_sim_time', default_value='false', description='Use simulation (Gazebo) clock if true'
+        'use_sim_time', default_value='true', description='Use simulation (Gazebo) clock if true'
     )
     declare_namespace_cmd = DeclareLaunchArgument(
         'namespace', default_value='robot1', description='Robot namespace'
@@ -49,19 +49,27 @@ def generate_launch_description():
         'use_localization', default_value='False', description='use localization'
     )
 
-    nav2_bringup_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([nav2_bringup_launch_file_dir]),
-        launch_arguments={
-            'slam': slam,
-            'params_file': params_file,
-            'use_sim_time': use_sim_time,
-            'use_localization': use_localization,
-            'namespace': namespace,
-            'use_namespace': use_namespace,
-            'map': '',
-        }.items(),
+    nav2_bringup_launch = GroupAction(
+        actions=[
+            SetRemap(src='/tf', dst='tf'),
+            SetRemap(src='/tf_static', dst='tf_static'),
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource([nav2_bringup_launch_file_dir]),
+                    launch_arguments={
+                        'slam': slam,
+                        'params_file': params_file,
+                        'use_sim_time': use_sim_time,
+                        'use_localization': use_localization,
+                        'namespace': namespace,
+                        'use_namespace': use_namespace,
+                        'map': '',
+                    }.items(),
+                )
+        ]
     )
-
+    
+    
+    
     return LaunchDescription(
         [
             declare_map_yaml_cmd,

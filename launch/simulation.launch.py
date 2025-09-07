@@ -42,8 +42,8 @@ def launch_setup(context:LaunchContext, *args, **kwargs):
         launch_arguments=[
             ('namespace', robot1_namespace),
             ('UGV_model', 'turtlebot'),
-            ('x', '-1.5'),
-            ('y', '-1.5'),
+            ('x', '0.0'),
+            ('y', '0.0'),
             ('Y','0.0')
         ],
     )
@@ -69,18 +69,20 @@ def launch_setup(context:LaunchContext, *args, **kwargs):
         package='coop_perception_sim', 
         executable='odom_frame_publisher',
         output='screen',        
-        namespace= robot1_namespace
+        namespace= robot1_namespace,
+        parameters=[{'use_sim_time': True}],
     )
 
     robot2_frame_repub =  Node(
         package='coop_perception_sim', 
         executable='odom_frame_publisher',
         output='screen',        
-        namespace= robot2_namespace
+        namespace= robot2_namespace,
+        parameters=[{'use_sim_time': True}],
     )
 
 
-    return [gz_launch, robot1_spawn, robot2_spawn, robot1_frame_repub, robot2_frame_repub]
+    return [gz_launch, robot1_spawn, robot1_frame_repub]
 
 
 def generate_launch_description():

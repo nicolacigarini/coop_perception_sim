@@ -33,6 +33,7 @@ class MultiLidarSlam : public rclcpp::Node {
 
     private:
         bool worldToMap(double wx, double wy, int &mx, int &my);
+        void raytrace(int x0, int y0, int x1, int y1);
         rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr _mapPublisher;
         rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr _lidarSub_Robot01;
         rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr _odomSub_robot01;  

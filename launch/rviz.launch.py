@@ -14,7 +14,7 @@ def generate_launch_description():
     )
 
     rviz_config_path = PathJoinSubstitution([
-        FindPackageShare("tutorial_pkg"), "rviz", config_file
+        FindPackageShare("coop_perception_sim"), "rviz", config_file
     ])
 
     rviz2_node = Node(
@@ -22,10 +22,10 @@ def generate_launch_description():
         executable="rviz2",
         name="rviz2",
         arguments=["-d", rviz_config_path],
-        namespace='mecanum01',
+        namespace='robot1',
         remappings=[
-                ("/tf", "/mecanum01/tf"),
-                ("/tf_static", "/mecanum01/tf_static"),
+                ("/tf", "/robot1/tf"),
+                ("/tf_static", "/robot1/tf_static"),
             ]
     )
 
