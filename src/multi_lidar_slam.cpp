@@ -15,12 +15,14 @@ MultiLidarSlam::MultiLidarSlam() : Node("multi_lidar_slam",
 }
 
 void MultiLidarSlam::setupParams() {
-    _gridParams.width = 500;
-    _gridParams.height = 500;
-    _gridParams.resolution = 0.02;
+    _gridParams.width = this->get_parameter("grid.width").as_int();
+    _gridParams.height = this->get_parameter("grid.height").as_int();
+    _gridParams.resolution = this->get_parameter("grid.resolution").as_double();
     _gridParams.origin_x = -(_gridParams.width*_gridParams.resolution)/2.0;
     _gridParams.origin_y = -(_gridParams.height*_gridParams.resolution)/2.0;
-    occupancy_grid.header.frame_id = "map";
+
+
+    occupancy_grid.header.frame_id = this->get_parameter("grid.frame").as_string();
     occupancy_grid.info.resolution = _gridParams.resolution;
     occupancy_grid.info.width = _gridParams.width;
     occupancy_grid.info.height = _gridParams.height;
@@ -31,8 +33,9 @@ void MultiLidarSlam::setupParams() {
 
 void MultiLidarSlam::initConnections() {    
     _mapPublisher = this->create_publisher<nav_msgs::msg::OccupancyGrid>("/map",rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable());
-    addNewRobot("robot1");
-    addNewRobot("robot2");
+    auto robots = this->get_parameter("robot_namespaces").as_string_array();
+    for(auto robot: robots)
+        addNewRobot(robot);
 }
 
 void MultiLidarSlam::addNewRobot(const std::string &robotName) {

@@ -1,0 +1,8 @@
+/multi_lidar_slam:
+  ros__parameters:
+    grid:
+      resolution: 0.02
+      width: 500
+      height: 500
+      frame: map
+    robot_namespaces: [robot1, robot2]

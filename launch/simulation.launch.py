@@ -66,9 +66,15 @@ def launch_setup(context:LaunchContext, *args, **kwargs):
             ('Y','3.14')
         ],
     )
+    multi_lidar_slam_params = PathJoinSubstitution([FindPackageShare("coop_perception_sim"), "config", "multiLidarSlam.yaml"])
+    multi_lidar_slam = Node(
+        package="coop_perception_sim",
+        executable="multi_lidar_slam",
+        output="screen",
+        parameters=[{'use_sim_time': True}, multi_lidar_slam_params],
+    )
 
     odom_map_remapper_params = PathJoinSubstitution([FindPackageShare("coop_perception_sim"), "config", "odomMapRemapper.yaml"])
-
     robot1_frame_repub =  Node(
         package='coop_perception_sim', 
         executable='odom_map_remapper',
@@ -82,11 +88,11 @@ def launch_setup(context:LaunchContext, *args, **kwargs):
         executable='odom_map_remapper',
         output='screen',        
         namespace= robot2_namespace,
-        parameters=[{'use_sim_time': True}],
+        parameters=[{'use_sim_time': True}, odom_map_remapper_params],
     )
 
 
-    return [gz_launch, robot1_spawn, robot1_frame_repub]
+    return [gz_launch, robot1_spawn, robot1_frame_repub, robot2_spawn, robot2_frame_repub,multi_lidar_slam]
 
 
 def generate_launch_description():

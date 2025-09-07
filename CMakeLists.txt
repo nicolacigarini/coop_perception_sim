@@ -9,6 +9,7 @@ find_package(rclcpp REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(tf2_msgs REQUIRED)
 find_package(tf2 REQUIRED)
+find_package(tf2_ros REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 
@@ -18,8 +19,11 @@ ament_target_dependencies(odom_map_remapper rclcpp nav_msgs geometry_msgs tf2_ms
 add_executable(multi_lidar_slam src/multi_lidar_slam.cpp)
 ament_target_dependencies(multi_lidar_slam rclcpp nav_msgs geometry_msgs tf2 sensor_msgs)
 
+add_executable(apriltag_tf_remapper src/apriltag_to_tf_remapper.cpp)
+ament_target_dependencies(apriltag_tf_remapper rclcpp nav_msgs geometry_msgs tf2_ros tf2 tf2_msgs)
 install(TARGETS
   odom_map_remapper
+  apriltag_tf_remapper
   multi_lidar_slam
   DESTINATION lib/${PROJECT_NAME})
 
