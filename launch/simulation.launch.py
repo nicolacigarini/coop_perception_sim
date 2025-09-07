@@ -9,6 +9,7 @@ from launch_ros.actions import Node
 ARGUMENTS = [
     DeclareLaunchArgument("namespace_robot_1", default_value='robot1', description="Robot #1 namespace"),
     DeclareLaunchArgument("namespace_robot_2", default_value='robot2', description="Robot #2 namespace"),
+    DeclareLaunchArgument("namespace_robot_3", default_value="robot3", description="Robot #3 namespace"),
     DeclareLaunchArgument("world", default_value="napcylinders", description="Simulation world")
 ]
 
@@ -16,6 +17,7 @@ ARGUMENTS = [
 def launch_setup(context:LaunchContext, *args, **kwargs):
     robot1_namespace = LaunchConfiguration("namespace_robot_1")
     robot2_namespace = LaunchConfiguration("namespace_robot_2")
+    robot3_namespace = LaunchConfiguration("namespace_robot_3")
     world = LaunchConfiguration('world')
 
     gz_launch = IncludeLaunchDescription(
@@ -65,17 +67,19 @@ def launch_setup(context:LaunchContext, *args, **kwargs):
         ],
     )
 
+    odom_map_remapper_params = PathJoinSubstitution([FindPackageShare("coop_perception_sim"), "config", "odomMapRemapper.yaml"])
+
     robot1_frame_repub =  Node(
         package='coop_perception_sim', 
-        executable='odom_frame_publisher',
+        executable='odom_map_remapper',
         output='screen',        
         namespace= robot1_namespace,
-        parameters=[{'use_sim_time': True}],
+        parameters=[{'use_sim_time': True}, odom_map_remapper_params],
     )
 
     robot2_frame_repub =  Node(
         package='coop_perception_sim', 
-        executable='odom_frame_publisher',
+        executable='odom_map_remapper',
         output='screen',        
         namespace= robot2_namespace,
         parameters=[{'use_sim_time': True}],

@@ -12,14 +12,14 @@ find_package(tf2 REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 
-add_executable(odom_frame_publisher src/odom_frame_pub.cpp)
-ament_target_dependencies(odom_frame_publisher rclcpp nav_msgs geometry_msgs tf2_msgs)
+add_executable(odom_map_remapper src/odom_map_remapper.cpp)
+ament_target_dependencies(odom_map_remapper rclcpp nav_msgs geometry_msgs tf2_msgs)
 
 add_executable(multi_lidar_slam src/multi_lidar_slam.cpp)
 ament_target_dependencies(multi_lidar_slam rclcpp nav_msgs geometry_msgs tf2 sensor_msgs)
 
 install(TARGETS
-  odom_frame_publisher
+  odom_map_remapper
   multi_lidar_slam
   DESTINATION lib/${PROJECT_NAME})
 

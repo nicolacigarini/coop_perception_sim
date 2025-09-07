@@ -3,7 +3,7 @@
 <package format="3">
   <name>coop_perception_sim</name>
   <version>1.0.0</version>
-  <description>Cooperative transportation simulation package</description>
+  <description>Cooperative perception simulation package</description>
   <maintainer email="nicola.cigarini@unipd.it">nicolacigarini</maintainer>
   <license>Apache-2.0</license>
 
