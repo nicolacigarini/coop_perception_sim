@@ -137,13 +137,15 @@ local_costmap:
     ros__parameters:
       use_sim_time: True
 
-      update_frequency: 5.0
+      update_frequency: 2.0
       publish_frequency: 2.0
       global_frame: odom
       robot_base_frame: base_link
 
       width: 3
       height: 3
+      origin_x: -1.5
+      origin_y: -1.5
       resolution: 0.02
       rolling_window: True
       always_send_full_costmap: True
@@ -188,11 +190,6 @@ global_costmap:
       publish_frequency: 1.0
       global_frame: map
       robot_base_frame: base_link
-      height: 10
-      width: 10
-      origin_x: -5.0
-      origin_y: -5.0
-      resolution: 0.02
       always_send_full_costmap: True
       track_unknown_space: True
 

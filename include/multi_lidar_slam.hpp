@@ -30,14 +30,18 @@ class MultiLidarSlam : public rclcpp::Node {
         void initConnections();
         void addNewRobot(const std::string &robotName);
         void elaborateScan(const sensor_msgs::msg::LaserScan &lidarMsg, const geometry_msgs::msg::PoseStamped &poseMsg);
+        void timerCallback();
 
     private:
         bool worldToMap(double wx, double wy, int &mx, int &my);
         void raytrace(int x0, int y0, int x1, int y1);
-        rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr _mapPublisher;
-        rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr _lidarSub_Robot01;
-        rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr _odomSub_robot01;  
+        bool isInRobotPose(double rx, double ry, double lx, double ly);
 
+        rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr _mapPublisher;
+        rclcpp::TimerBase::SharedPtr _mapTimer;
+        std::vector<std::string> _robotNames;
+        double _robotFootprint;
+        int _mapPublishFrequency;
 
         std::vector<rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr> _scan_subs;
         std::vector<rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr> _odom_subs;

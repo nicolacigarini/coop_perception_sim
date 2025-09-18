@@ -6,3 +6,5 @@
       height: 500
       frame: map
     robot_namespaces: [robot1, robot2]
+    robot_footprint: 0.2
+    map_publish_frequency: 100 #in milliseconds

@@ -29,13 +29,18 @@ void MultiLidarSlam::setupParams() {
     occupancy_grid.info.origin.position.x = _gridParams.origin_x;
     occupancy_grid.info.origin.position.y = _gridParams.origin_y;
     occupancy_grid.data.assign(_gridParams.width*_gridParams.height,-1);
+
+    _mapPublishFrequency = this->get_parameter("map_publish_frequency").as_int();
+    _robotFootprint = this->get_parameter("robot_footprint").as_double();
 }
 
 void MultiLidarSlam::initConnections() {    
     _mapPublisher = this->create_publisher<nav_msgs::msg::OccupancyGrid>("/map",rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable());
-    auto robots = this->get_parameter("robot_namespaces").as_string_array();
-    for(auto robot: robots)
+    _robotNames = this->get_parameter("robot_namespaces").as_string_array();
+    for(auto robot: _robotNames)
         addNewRobot(robot);
+
+    _mapTimer = this->create_wall_timer(std::chrono::milliseconds(_mapPublishFrequency), std::bind(&MultiLidarSlam::timerCallback,this));
 }
 
 void MultiLidarSlam::addNewRobot(const std::string &robotName) {
@@ -51,10 +56,11 @@ void MultiLidarSlam::addNewRobot(const std::string &robotName) {
         "/" + robotName + "/lidar/scan", 10,
         [this, robotName](sensor_msgs::msg::LaserScan::SharedPtr msg) {
             //RCLCPP_INFO(get_logger(), "Before IF");
-            if(!_robots[robotName].hasPose)
+            if(!_robots[robotName].hasPose) {
+                //occupancy_grid.data.assign(_gridParams.width*_gridParams.height,-1);
                 return;
+            }
             elaborateScan(*msg, _robots[robotName].latest_pose);
-
         }
     );
     _scan_subs.push_back(scan_sub);
@@ -84,16 +90,38 @@ void MultiLidarSlam::elaborateScan(const sensor_msgs::msg::LaserScan &msg, const
         double lx = r*std::cos(angle);
         double ly = r*std::sin(angle);
 
+        //conversion into world coordinates
         double mx = R[0][0]*lx + R[0][1]*ly + px;
         double my = R[1][0]*lx + R[1][1]*ly + py;
+        bool robotSeeing = false;
+        for(auto &robotName: _robotNames) {
+            if(_robots[robotName].hasPose) {
+                double rx = _robots[robotName].latest_pose.pose.position.x;
+                double ry = _robots[robotName].latest_pose.pose.position.y;
+                if(isInRobotPose(rx, ry, mx, my)){
+                    //RCLCPP_INFO(this->get_logger(), "Point discarded");
+                    robotSeeing = true;
+                }
 
-        int gx1, gy1;
-        if (!worldToMap(mx, my, gx1, gy1)) continue;
-        raytrace(gx0, gy0, gx1, gy1);
+            }        
+        }
+        if(!robotSeeing) {
+            int gx1, gy1;
+            if (!worldToMap(mx, my, gx1, gy1)) continue;
+            raytrace(gx0, gy0, gx1, gy1);
+        }
     }
     occupancy_grid.header.stamp = now();
-    _mapPublisher->publish(occupancy_grid);
 
+
+}
+
+void MultiLidarSlam::timerCallback() {
+    _mapPublisher->publish(occupancy_grid);
+}
+
+bool MultiLidarSlam::isInRobotPose(double rx, double ry, double lx, double ly) {
+    return sqrt(pow(rx-lx,2) + pow(ry-ly,2))<_robotFootprint;
 }
 
 bool MultiLidarSlam::worldToMap(double wx, double wy, int &mx, int &my) {

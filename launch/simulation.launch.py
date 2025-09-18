@@ -10,7 +10,7 @@ ARGUMENTS = [
     DeclareLaunchArgument("namespace_robot_1", default_value='robot1', description="Robot #1 namespace"),
     DeclareLaunchArgument("namespace_robot_2", default_value='robot2', description="Robot #2 namespace"),
     DeclareLaunchArgument("namespace_robot_3", default_value="robot3", description="Robot #3 namespace"),
-    DeclareLaunchArgument("world", default_value="napcylinders", description="Simulation world")
+    DeclareLaunchArgument("world", default_value="sparcs", description="Simulation world")
 ]
 
 
