@@ -3,7 +3,7 @@ from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, Grou
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
-from launch_ros.actions import SetRemap
+from launch_ros.actions import SetRemap, Node
 
 def generate_launch_description():
     coop_perception_pkg = FindPackageShare('coop_perception_sim')
@@ -68,6 +68,22 @@ def generate_launch_description():
         ]
     )
     
+    scan_to_local_costmap = Node(
+        package="topic_tools",
+        executable="relay",
+        name='scan_local_relay',
+        arguments=["lidar/scan", "local_costmap/lidar/scan"],
+        namespace=namespace,
+    )
+
+        
+    scan_to_global_costmap = Node(
+        package="topic_tools",
+        executable="relay",
+        name='scan_global_relay',
+        arguments=["lidar/scan", "global_costmap/lidar/scan"],
+        namespace=namespace,
+    )
     
     
     return LaunchDescription(
@@ -80,5 +96,7 @@ def generate_launch_description():
             declare_slam_cmd,
             declare_use_localization_cmd,
             nav2_bringup_launch,
+            scan_to_local_costmap,
+            scan_to_global_costmap,
         ]
     )

@@ -137,16 +137,16 @@ local_costmap:
     ros__parameters:
       use_sim_time: True
 
-      update_frequency: 2.0
-      publish_frequency: 2.0
+      update_frequency: 5.0
+      publish_frequency: 5.0
       global_frame: odom
       robot_base_frame: base_link
 
-      width: 3
-      height: 3
-      origin_x: -1.5
-      origin_y: -1.5
-      resolution: 0.02
+      width: 2
+      height: 2
+      origin_x: -1.0
+      origin_y: -1.0
+      resolution: 0.04
       rolling_window: True
       always_send_full_costmap: True
 
@@ -158,14 +158,15 @@ local_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         enabled: True
-        inflation_radius: 0.1
-        cost_scaling_factor: 3.0
+        inflation_radius: 0.5
+        cost_scaling_factor: 10.0
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: True
         observation_sources: scan
         scan:
           topic: lidar/scan
+          sensor_frame: rp_lidar_link
           max_obstacle_height: 2.0
           clearing: True
           marking: True
@@ -186,28 +187,35 @@ global_costmap:
     ros__parameters:
       use_sim_time: True
 
-      update_frequency: 1.0
-      publish_frequency: 1.0
+      update_frequency: 5.0
+      publish_frequency: 5.0
       global_frame: map
       robot_base_frame: base_link
       always_send_full_costmap: True
       track_unknown_space: True
 
-      robot_radius: 0.17
+      robot_radius: 0.2
       # footprint: "[[0.12, 0.12], [0.12, -0.12], [-0.12, -0.12], [-0.12, 0.12]]"
-      footprint_padding: 0.02
+      footprint_padding: 0.05
 
-      plugins: ["obstacle_layer", "inflation_layer"]
+      plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
+      static_layer:
+        plugin: "nav2_costmap_2d::StaticLayer"
+        enabled: True
+        map_subscribe_transient_local: True
+        map_topic: /map
+        
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         enabled: True
-        inflation_radius: 0.1
-        cost_scaling_factor: 3.0
+        inflation_radius: 0.5
+        cost_scaling_factor: 10.0
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: True
         observation_sources: scan
         scan:
+          sensor_frame: rp_lidar_link
           topic: lidar/scan
           max_obstacle_height: 2.0
           clearing: True

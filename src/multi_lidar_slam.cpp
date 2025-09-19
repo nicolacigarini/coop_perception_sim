@@ -66,11 +66,9 @@ void MultiLidarSlam::addNewRobot(const std::string &robotName) {
     _scan_subs.push_back(scan_sub);
     _odom_subs.push_back(pose_sub);
     _robots[robotName] = RobotState();
-
 }
 
 void MultiLidarSlam::elaborateScan(const sensor_msgs::msg::LaserScan &msg, const geometry_msgs::msg::PoseStamped &poseMsg){
-
     const double px = poseMsg.pose.position.x;
     const double py = poseMsg.pose.position.y;
     tf2::Quaternion q(
